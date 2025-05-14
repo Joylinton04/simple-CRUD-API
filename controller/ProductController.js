@@ -4,13 +4,25 @@ import _ from "lodash";
 
 // get all products -- done
 // add -- done , read, update, delete
-// store in mongodb
 
 // console.log(products.map(pro => _.pick(pro, ['id','category','name','price','inStock','description'])))
 
 export const getAllProducts = (req, res) => {
   res.send(products);
 };
+
+export const getProduct = (req, res) => {
+    const {id} = req.params
+    const product = products.find(pro => pro.id == id)
+
+    if(!product)
+        return res.status(404).json({success: false, message: "Product not found"})
+
+    res.send(product)
+
+}
+
+
 export const addProduct = (req, res) => {
   const { error } = validateProduct(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -41,7 +53,7 @@ export const updateProduct = (req, res) => {
         message: "Product not found",
       });
     }
-    
+
     product.name = name;
     product.price = price;
     product.category = category;
@@ -54,6 +66,20 @@ export const updateProduct = (req, res) => {
       product,
     });
   };
+
+export const deleteProduct = (req, res) => {
+    const {id} = req.params
+    const productIndex = products.findIndex(pro => pro.id == id)
+    if(productIndex === -1)
+        return res.status(404).json({success: false, message: "Product not found"})
+
+    products.splice(productIndex, 1)
+    res.json({
+        success: true, 
+        message: "Product deleted successfully",
+        products
+    })
+}
   
 
 export function validateProduct(product) {
